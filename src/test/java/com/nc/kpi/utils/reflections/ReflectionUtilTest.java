@@ -20,6 +20,7 @@ public class ReflectionUtilTest {
 
     @Test
     public void getFillMethodsTest() {
+        Assert.assertFalse(reflectionUtil.getAllFillMethods().isEmpty());
         for (Method method : reflectionUtil.getAllFillMethods()) {
             Assert.assertTrue(method.isAnnotationPresent(Filler.class));
         }
@@ -27,6 +28,7 @@ public class ReflectionUtilTest {
 
     @Test
     public void getSortersTest() {
+        Assert.assertFalse(reflectionUtil.getSorters().isEmpty());
         for (Class<? extends Sorter> sorter : reflectionUtil.getSorters()) {
             int mod = sorter.getModifiers();
             Assert.assertFalse(Modifier.isAbstract(mod));

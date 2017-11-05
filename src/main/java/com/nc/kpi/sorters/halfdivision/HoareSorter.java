@@ -17,7 +17,7 @@ public class HoareSorter extends HalfDivisionSorter {
 //        doIteration(array);
 //        sortArrayParts(array);
 
-
+    //TODO make this code more beautiful
     @Override
     public void doSort(int[] array) {
         isArrayNull(array);

@@ -17,8 +17,8 @@ public class ReflectionUtil {
     private Reflections fillerReflections;
 
     private ReflectionUtil() {
-        sorterReflections = new Reflections("sorters", new SubTypesScanner());
-        fillerReflections = new Reflections("fillers", new MethodAnnotationsScanner());
+        sorterReflections = new Reflections("com.nc.kpi.sorters", new SubTypesScanner());
+        fillerReflections = new Reflections("com.nc.kpi.fillers", new MethodAnnotationsScanner());
     }
 
     public static ReflectionUtil getInstance() {
