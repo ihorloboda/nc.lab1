@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 public class AnalyzerTest {
-    private final int SIZE = 10;
+    private final int SIZE = 1000;
     private Analyzer analyzer;
     private ReflectionUtil reflectionUtil;
     private Method filler;
@@ -29,9 +29,16 @@ public class AnalyzerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void getFullStat() {
-        Map<Method, List<ArraySortStatistics>> fullStat = analyzer.getFullStat(SIZE);
-        System.out.println(fullStat);
-        Assert.assertEquals(reflectionUtil.getAllFillMethods(), fullStat.keySet());
+        ArraySortStatistics fullStat = analyzer.getFullStat(SIZE);
+        fullStat.print();
+        Assert.assertEquals(reflectionUtil.getAllFillMethods(), fullStat.getFillers());
+        Assert.assertEquals(Math.log10(SIZE), fullStat.getCountOfElementsValues().size(), 10E-6);
+        for (Method filler : fullStat.getFillers()) {
+            Map<Class<? extends Sorter>, List<Long>> fillerStat = fullStat.getFillerStatistics(filler);
+            for (Class<? extends Sorter> sorter : fillerStat.keySet()) {
+                Assert.assertEquals(Math.log10(SIZE), fullStat.getSorterStatistics(filler, sorter).size(), 10E-6);
+            }
+        }
         analyzer.getFullStat(9);
     }
 
@@ -39,8 +46,8 @@ public class AnalyzerTest {
     public void getStat() {
         int[] array = ArrayFiller.generateRandomArray(SIZE, SIZE);
         ArraySortStatistics stat = analyzer.getStat(SIZE, array, filler, sorter);
-        Assert.assertEquals(stat.getTimeOfSortValues().size(), stat.getCountOfElementsValues().size());
+        Assert.assertEquals(stat.getCountOfElementsValues().size(), stat.getSortTime(filler, sorter).size());
+        stat.print();
         analyzer.getStat(0, null, null, null);
     }
-
 }

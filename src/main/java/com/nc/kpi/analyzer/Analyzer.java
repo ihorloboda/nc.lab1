@@ -24,23 +24,22 @@ public class Analyzer {
         return instance;
     }
 
-    public Map<Method, List<ArraySortStatistics>> getFullStat(int maxCountOfElements) {
-        if(maxCountOfElements<10){
-            throw new IllegalArgumentException("Max count of elemnts must be > 10");
+    public ArraySortStatistics getFullStat(int maxCountOfElements) {
+        if (maxCountOfElements < 10) {
+            throw new IllegalArgumentException("Max count of elements must be > 10");
         }
         Set<Method> fillers = reflectionUtil.getAllFillMethods();
-        Set<Class<? extends Sorter>> sorters = reflectionUtil.getSorters();
-        int n = 10;
-        Map<Method, List<ArraySortStatistics>> stat = new HashMap<>();
-        while (n <= maxCountOfElements) {
-            for (Method filler : fillers) {
-                stat.put(filler, new ArrayList<>());
-                int[] array = invokeFiller(filler, n);
+        Set<Class<? extends Sorter>> sorters = reflectionUtil.getAllSorters();
+        ArraySortStatistics stat = new ArraySortStatistics();
+        for (Method filler : fillers) {
+            int countOfElements = 10;
+            while (countOfElements <= maxCountOfElements) {
+                int[] array = invokeFiller(filler, countOfElements);
                 for (Class<? extends Sorter> sorter : sorters) {
-                    stat.get(filler).add(getStat(n, array, filler, sorter));
+                    getStat(stat, countOfElements, array, filler, sorter);
                 }
+                countOfElements *= 10;
             }
-            n *= 10;
         }
         return stat;
     }
@@ -49,7 +48,13 @@ public class Analyzer {
         if (countOfElements <= 0 || array == null || filler == null || sorterClass == null) {
             throw new IllegalArgumentException();
         }
-        ArraySortStatistics stat = new ArraySortStatistics(filler, sorterClass);
+        ArraySortStatistics stat = new ArraySortStatistics();
+        getStat(stat, countOfElements, array, filler, sorterClass);
+        return stat;
+    }
+
+    private ArraySortStatistics getStat(ArraySortStatistics stat, int countOfElements, int[] array, Method filler,
+                                        Class<? extends Sorter> sorterClass) {
         Sorter sorter = instantiateSorter(sorterClass);
         long averageTime = 0;
         for (int i = 0; i < COUNT_OF_REPEATING; i++) {
@@ -61,13 +66,12 @@ public class Analyzer {
             averageTime += profiler.elapsedTime();
         }
         averageTime /= COUNT_OF_REPEATING;
-        stat.addValues((long) countOfElements, averageTime);
+        stat.addValues(filler, sorterClass, Long.valueOf(countOfElements), averageTime);
         return stat;
     }
 
     private int[] invokeFiller(Method filler, int n) {
         try {
-            System.out.println(filler.getParameterCount());
             switch (filler.getParameterCount()) {
                 case 1:
                     return (int[]) filler.invoke(null, n);

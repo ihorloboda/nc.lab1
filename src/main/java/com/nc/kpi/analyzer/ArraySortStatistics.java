@@ -2,60 +2,67 @@ package com.nc.kpi.analyzer;
 
 import com.nc.kpi.sorters.Sorter;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
-@Getter
-@Setter
 public class ArraySortStatistics {
+    @Getter
     private List<Long> countOfElementsValues;
-    private List<Long> timeOfSortValues;
-    private Method filler;
-    private Class<? extends Sorter> sorter;
+    private Map<Method, Map<Class<? extends Sorter>, List<Long>>> sortTimeStat;
 
-    public ArraySortStatistics(Method filler, Class<? extends Sorter> sorter) {
+    public ArraySortStatistics() {
         countOfElementsValues = new ArrayList<>();
-        timeOfSortValues = new ArrayList<>();
-        this.filler = filler;
-        this.sorter = sorter;
+        sortTimeStat = new HashMap<>();
     }
 
-    public ArraySortStatistics(List<Long> countOfElementsValues, List<Long> timeOfSortValues,
-                               Method filler, Class<? extends Sorter> sorter) {
-        this.countOfElementsValues = countOfElementsValues;
-        this.timeOfSortValues = timeOfSortValues;
-        this.filler = filler;
-        this.sorter = sorter;
+    public List<Long> getSortTime(Method filler, Class<? extends Sorter> sorter) {
+        if (sortTimeStat.containsKey(filler)) {
+            return sortTimeStat.get(filler).get(sorter);
+        }
+        return null;
     }
 
-    public void addCountOfElementsValue(Long value) {
-        countOfElementsValues.add(value);
+    public Map<Class<? extends Sorter>, List<Long>> getFillerStatistics(Method filler) {
+        return sortTimeStat.get(filler);
     }
 
-    public void addTimeOfSortValue(Long value) {
-        timeOfSortValues.add(value);
+    public List<Long> getSorterStatistics(Method filler, Class<? extends Sorter> sorter) {
+        if (sortTimeStat.containsKey(filler)) {
+            return sortTimeStat.get(filler).get(sorter);
+        }
+        return null;
     }
 
-    public void addValues(Long countOfElements, Long timeOfSort) {
-        addCountOfElementsValue(countOfElements);
-        addTimeOfSortValue(timeOfSort);
+    public Set<Method> getFillers() {
+        return sortTimeStat.keySet();
     }
 
-    public void removeCountOfElementsValue(Long value) {
-        countOfElementsValues.remove(value);
+    public void addValues(Method filler, Class<? extends Sorter> sorter, Long countOfElements, Long sortTime) {
+        Map<Class<? extends Sorter>, List<Long>> fillerStat;
+        if (sortTimeStat.containsKey(filler)) {
+            fillerStat = sortTimeStat.get(filler);
+            if (fillerStat.containsKey(sorter)) {
+                List<Long> sorterStat = sortTimeStat.get(filler).get(sorter);
+                if (!sorterStat.contains(sortTime)) {
+                    sorterStat.add(sortTime);
+                }
+            } else {
+                fillerStat.put(sorter, new ArrayList<>());
+                fillerStat.get(sorter).add(sortTime);
+            }
+        } else {
+            sortTimeStat.put(filler, new HashMap<>());
+            fillerStat = sortTimeStat.get(filler);
+            fillerStat.put(sorter, new ArrayList<>());
+            fillerStat.get(sorter).add(sortTime);
+        }
+        if (!countOfElementsValues.contains(countOfElements)) {
+            countOfElementsValues.add(countOfElements);
+        }
     }
 
-    public void removeTimeOfSortValue(Long value) {
-        timeOfSortValues.remove(value);
-    }
-
-    @Override
-    public String toString() {
-        return System.lineSeparator() + "{filler: " + filler.getName() + ", sorter: " + sorter.getSimpleName()
-                + "countOfElementsValues: " + countOfElementsValues.toString() + ", timeOfSortValues: "
-                + timeOfSortValues.toString() + "}";
+    public void print() {
+        System.out.println(sortTimeStat);
     }
 }

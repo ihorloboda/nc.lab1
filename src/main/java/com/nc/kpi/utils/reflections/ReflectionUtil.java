@@ -32,7 +32,7 @@ public class ReflectionUtil {
         return fillerReflections.getMethodsAnnotatedWith(Filler.class);
     }
 
-    public Set<Class<? extends Sorter>> getSorters() {
+    public Set<Class<? extends Sorter>> getAllSorters() {
         Set<Class<? extends Sorter>> sorters = sorterReflections.getSubTypesOf(Sorter.class);
         for (Iterator<Class<? extends Sorter>> iterator = sorters.iterator(); iterator.hasNext(); ) {
             if (Modifier.isAbstract(iterator.next().getModifiers())) {
@@ -40,5 +40,25 @@ public class ReflectionUtil {
             }
         }
         return sorters;
+    }
+
+    public Method getFillMethod(String name) {
+        Set<Method> fillers = getAllFillMethods();
+        for (Method filler : fillers) {
+            if (filler.getName().equals(name)) {
+                return filler;
+            }
+        }
+        return null;
+    }
+
+    public Class<? extends Sorter> getSorterClass(String name) {
+        Set<Class<? extends Sorter>> sorters = getAllSorters();
+        for (Class<? extends Sorter> sorter : sorters) {
+            if (sorter.getSimpleName().equals(name)) {
+                return sorter;
+            }
+        }
+        return null;
     }
 }
