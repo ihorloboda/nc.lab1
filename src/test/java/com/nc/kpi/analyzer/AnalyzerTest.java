@@ -30,7 +30,6 @@ public class AnalyzerTest {
     @Test(expected = IllegalArgumentException.class)
     public void getFullStat() {
         ArraySortStatistics fullStat = analyzer.getFullStat(SIZE);
-        fullStat.print();
         Assert.assertEquals(reflectionUtil.getAllFillMethods(), fullStat.getFillers());
         Assert.assertEquals(Math.log10(SIZE), fullStat.getCountOfElementsValues().size(), 10E-6);
         for (Method filler : fullStat.getFillers()) {
@@ -47,7 +46,6 @@ public class AnalyzerTest {
         int[] array = ArrayFiller.generateRandomArray(SIZE, SIZE);
         ArraySortStatistics stat = analyzer.getStat(SIZE, array, filler, sorter);
         Assert.assertEquals(stat.getCountOfElementsValues().size(), stat.getSortTime(filler, sorter).size());
-        stat.print();
         analyzer.getStat(0, null, null, null);
     }
 }

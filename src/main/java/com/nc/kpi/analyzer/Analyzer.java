@@ -8,6 +8,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
+/**
+ * Class for sort time tracking
+ *
+ * @author Ihor Loboda
+ */
 public class Analyzer {
     private static Analyzer instance;
     private final int COUNT_OF_REPEATING = 10;
@@ -24,9 +29,21 @@ public class Analyzer {
         return instance;
     }
 
+    /**
+     * <p>Tracks time of array sort for different array length, fillers and sorters.</p>
+     * <p>Array length changes from 10 to maxCountOfElements with multiplying on 10.
+     * If maxCountOfElements is not divided by 10 than array lenght changes to max value which is
+     * divided by 10 and less than maxCountOfElements.</p>
+     * <p>Array will be filled by all fillers, which is present in {@link com.nc.kpi.fillers} package
+     * and all sorters which extends {@link Sorter}.</p>
+     *
+     * @param maxCountOfElements max value of array length
+     * @return statistics for all fillers and sorters
+     * @throws IllegalArgumentException if max count of elements is less than 10 or if at least of params is null or zero
+     */
     public ArraySortStatistics getFullStat(int maxCountOfElements) {
         if (maxCountOfElements < 10) {
-            throw new IllegalArgumentException("Max count of elements must be > 10");
+            throw new IllegalArgumentException("Max count of elements must be >= 10");
         }
         Set<Method> fillers = reflectionUtil.getAllFillMethods();
         Set<Class<? extends Sorter>> sorters = reflectionUtil.getAllSorters();
@@ -36,7 +53,7 @@ public class Analyzer {
             while (countOfElements <= maxCountOfElements) {
                 int[] array = invokeFiller(filler, countOfElements);
                 for (Class<? extends Sorter> sorter : sorters) {
-                    getStat(stat, countOfElements, array, filler, sorter);
+                    getStat(stat, array, filler, sorter);
                 }
                 countOfElements *= 10;
             }
@@ -44,21 +61,32 @@ public class Analyzer {
         return stat;
     }
 
-    public ArraySortStatistics getStat(int countOfElements, int[] array, Method filler, Class<? extends Sorter> sorterClass) {
-        if (countOfElements <= 0 || array == null || filler == null || sorterClass == null) {
+    /**
+     * Tracks sort time of array which is filled by filler and sorted by sorter.
+     * Wraps results into {@link ArraySortStatistics} object, which contains filler, sorter,
+     * elements count of array and sort time.
+     *
+     * @param array       array for time tracking
+     * @param filler      filler method (for key in {@link ArraySortStatistics}
+     * @param sorterClass sorter (for sorting and for key in {@link ArraySortStatistics}
+     * @return statistics for array
+     * @throws IllegalArgumentException if at least of params is null or zero.
+     */
+    public ArraySortStatistics getStat(int[] array, Method filler, Class<? extends Sorter> sorterClass) {
+        if (array == null || filler == null || sorterClass == null) {
             throw new IllegalArgumentException();
         }
         ArraySortStatistics stat = new ArraySortStatistics();
-        getStat(stat, countOfElements, array, filler, sorterClass);
+        getStat(stat, array, filler, sorterClass);
         return stat;
     }
 
-    private ArraySortStatistics getStat(ArraySortStatistics stat, int countOfElements, int[] array, Method filler,
+    private ArraySortStatistics getStat(ArraySortStatistics stat, int[] array, Method filler,
                                         Class<? extends Sorter> sorterClass) {
         Sorter sorter = instantiateSorter(sorterClass);
         long averageTime = 0;
         for (int i = 0; i < COUNT_OF_REPEATING; i++) {
-            Profiler profiler = new Profiler("filler: " + filler.getName() + ", countOfElements: " + countOfElements +
+            Profiler profiler = new Profiler("filler: " + filler.getName() + ", countOfElements: " + array.length +
                     ", sorter: " + sorterClass.getSimpleName());
             profiler.start("i = " + i);
             sorter.sort(array);
@@ -66,7 +94,7 @@ public class Analyzer {
             averageTime += profiler.elapsedTime();
         }
         averageTime /= COUNT_OF_REPEATING;
-        stat.addValues(filler, sorterClass, Long.valueOf(countOfElements), averageTime);
+        stat.addValues(filler, sorterClass, Long.valueOf(array.length), averageTime);
         return stat;
     }
 

@@ -2,6 +2,14 @@ package com.nc.kpi.sorters.bubble;
 
 import com.nc.kpi.sorters.Sorter;
 
+/**
+ * <p>Abstract bubble sorter for two directions: from left to right and conversely.</p>
+ * <p>Better use {@link com.nc.kpi.sorters.QuickSorter}</p>
+ *
+ * @author Ihor Loboda
+ * @see InverseBubbleSorter
+ * @see PopupBubbleSorter
+ */
 public abstract class BubbleSorter extends Sorter {
     protected int step;
 

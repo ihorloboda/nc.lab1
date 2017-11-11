@@ -1,5 +1,12 @@
 package com.nc.kpi.sorters.halfdivision;
 
+/**
+ * Sorter that uses Hoare's algorithm for sorting
+ *
+ * @author Ihor Loboda
+ * @see HalfDivisionSorter
+ * @see MergeSorter
+ */
 public class HoareSorter extends HalfDivisionSorter {
 //    private int leftIndex;
 //    private int rightIndex;
@@ -19,7 +26,7 @@ public class HoareSorter extends HalfDivisionSorter {
 
     //TODO make this code more beautiful
     @Override
-    public void doSort(int[] array) {
+    protected void doSort(int[] array) {
         isArrayNull(array);
         int leftIndex = 0;
         int rightIndex = array.length - 1;

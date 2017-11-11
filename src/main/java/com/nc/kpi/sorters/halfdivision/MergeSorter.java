@@ -1,8 +1,15 @@
 package com.nc.kpi.sorters.halfdivision;
 
+/**
+ * Sorter that uses merge algorithm for sorting
+ *
+ * @author Ihor Loboda
+ * @see HalfDivisionSorter
+ * @see HoareSorter
+ */
 public class MergeSorter extends HalfDivisionSorter {
     @Override
-    public void doSort(int[] array) {
+    protected void doSort(int[] array) {
         isArrayNull(array);
         int[] leftArray = new int[array.length / 2];
         int[] rightArray = new int[array.length - leftArray.length];

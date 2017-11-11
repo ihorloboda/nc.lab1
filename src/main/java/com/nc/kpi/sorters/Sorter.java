@@ -1,8 +1,18 @@
 package com.nc.kpi.sorters;
 
+/**
+ * Class for array sorting
+ *
+ * @author Ihor Loboda
+ */
 public abstract class Sorter {
-
-    public void sort(int[] array){
+    /**
+     * Sort given array
+     *
+     * @param array which will be sorted
+     * @throws IllegalArgumentException if array is null
+     */
+    public void sort(int[] array) {
         isArrayNull(array);
         doSort(array);
     }

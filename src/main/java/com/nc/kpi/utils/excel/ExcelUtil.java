@@ -21,11 +21,16 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Singleton util that imports statistics to xlsx-file.
+ *
+ * @author Ihor Loboda
+ */
 public class ExcelUtil {
     private static ExcelUtil instance;
     @Getter
     @Setter
-    private String fileName="stat.xlsx";
+    private String fileName = "stat.xlsx";
 
     private ExcelUtil() {
     }
@@ -37,6 +42,11 @@ public class ExcelUtil {
         return instance;
     }
 
+    /**
+     * Writes statistics to xlsx-file.
+     *
+     * @param stat statistics that will be written to file.
+     */
     public void writeStatToXls(ArraySortStatistics stat) {
         if (stat == null) {
             throw new IllegalArgumentException("Statistics is null");
